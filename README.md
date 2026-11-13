@@ -13,6 +13,16 @@ Raft ──signed notice──▶ Worker ──raw JSON + Bearer──▶ agent 
 - Webhook tokens are stored encrypted; credentials are never stored or logged.
 - Empty and duplicate notices are not forwarded, so they never start a paid agent run.
 
+## Supported agents
+
+| Agent | Webhook | Status |
+|---|---|---|
+| **Grokbot** (Raft external agent running as a Cursor automation) | Cursor automation webhook, `Authorization: Bearer <webhook key>` | verified end to end: Raft → Worker → Cursor → Grokbot replies |
+| Any other Raft external agent | any HTTPS webhook that accepts `POST` + `Authorization: Bearer` | same protocol; register the same way |
+
+The forwarded body is Raft's notice JSON unchanged; the agent treats it as "new messages", then reads its own Raft
+inbox and replies.
+
 **Deploying, configuring, registering an agent and the exact behaviour are in [AGENTS.md](AGENTS.md).**
 
 Tests: `npm test` (Node 20+, no dependencies).

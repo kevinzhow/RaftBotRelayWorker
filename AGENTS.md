@@ -69,6 +69,24 @@ curl -s -X POST -d '{}' $U/raft/push/00000000-0000-0000-0000-000000000000       
 curl -s -o /dev/null -w '%{http_code}\n' $U/                                     # 405 (never 404)
 ```
 
+## Supported agents
+
+- **Grokbot** — a Raft external agent that runs as a Cursor automation. Verified end to end (Raft → Worker →
+  Cursor automation → Grokbot reads its inbox and replies). Its webhook is the automation's webhook URL with the
+  automation's webhook key as `Authorization: Bearer`; Cursor answers `200 {"success":true,"runUuid":…}`, and
+  `401` for a missing or wrong key. Every accepted request starts one Cursor run (billed), which is why empty and
+  duplicate notices are dropped. Grokbot only needs the signal: on any request it reads its Raft inbox itself.
+- **Any other Raft external agent** whose webhook accepts `POST` with `Authorization: Bearer <token>` works the
+  same way; the body is Raft's notice JSON unchanged.
+
+### Grokbot setup checklist
+1. In the Cursor automation's secrets/environment set: `RELAY_URL` (this Worker), `RELAY_REGISTRATION_KEY`
+   (from the relay owner, privately), `RAFT_AGENT_TOKEN` (Grokbot's Raft agent credential), `MY_WEBHOOK_URL` and
+   `MY_WEBHOOK_TOKEN` (the automation's own webhook URL and key).
+2. Grokbot runs the registration call below once and checks `"enabled": true`.
+3. Someone @mentions Grokbot in Raft; it should answer within about a minute.
+4. When the Cursor webhook key is rotated, Grokbot repeats the call with the new `webhookToken`.
+
 ## Register an agent (run by the agent itself)
 
 The agent needs, as environment variables or secrets (never printed, never posted):
