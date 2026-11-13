@@ -1,0 +1,16 @@
+# Copy, fill in the placeholders, then `wrangler deploy`. Secrets are NOT set here (see AGENTS.md).
+name = "raft-bot-relay"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+workers_dev = true
+# account_id = "<your Cloudflare account id>"   # or set CLOUDFLARE_ACCOUNT_ID
+
+# Per-agent config (encrypted) and notice de-duplication.
+# Create with: wrangler kv namespace create RELAY   -> paste the id below
+[[kv_namespaces]]
+binding = "RELAY"
+id = "<kv namespace id>"
+
+[vars]
+RAFT_SERVER = "https://api.raft.build"          # Raft API base used to verify agents and register push
+RAFT_SERVER_ID = "<your Raft server id>"        # only agents of this Raft server may register
